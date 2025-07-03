@@ -1087,25 +1087,31 @@ if (!chatId) {
       gap: "0.5rem",
     },
     dropdown: {
-      position: "absolute",
-      top: "100%",
-      right: 0,
-      background: "rgba(255,255,255,0.1)",
-      borderRadius: "0.5rem",
-      marginTop: "0.5rem",
-      padding: "0.5rem 1rem",
-      zIndex: 20,
-    },
+  position: "absolute",
+  top: "100%",
+  right: 0,
+  background: "transparent", // Changed to transparent
+  borderRadius: "0", // Removed rounded corners for a less "bubbly" look
+  marginTop: "0.5rem",
+  padding: "0", // Removed padding to eliminate the space creating the "bubble"
+  zIndex: 20,
+},
     logoutBtn: {
-      background: "rgba(239,68,68,0.18)",
-      color: "#fff",
-      border: "1.5px solid rgba(239,68,68,0.28)",
-      borderRadius: "0.5rem",
-      padding: "0.5rem 1rem",
-      fontWeight: 600,
-      cursor: "pointer",
-      backdropFilter: "blur(10px)",
-    },
+  // Make background more opaque and solid red
+  background: "linear-gradient(135deg, rgba(220, 38, 38, 0.9) 0%, rgba(185, 28, 28, 0.9) 100%)",
+  color: "#FFFFFF", // Pure white for crisp text and emoji
+  // Subtle white border for contrast against the solid red
+  border: "1px solid rgba(255, 255, 255, 0.3)",
+  borderRadius: "0.75rem",
+  padding: "0.6rem 1.2rem",
+  fontWeight: 600,
+  cursor: "pointer",
+  // Removed backdropFilter to eliminate the transparent white blur effect
+  backdropFilter: "none",
+  // Refined boxShadow for subtle depth on a solid button
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.4)",
+  transition: "all 0.3s ease", // Smooth transition for hover effects
+},
     menu: {
       display: "flex",
       alignItems: "center",
@@ -1216,7 +1222,10 @@ if (!chatId) {
                 onClick={() => setMenuOpen(!menuOpen)}
                 style={styles.userDropdownTrigger}
               >
-                👤 {user.name}
+                 <img 
+  src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" 
+  style={{ width: '20px', height: '20px', marginRight: '5px' }} 
+/> {user.name}{user.name}
                 <svg
                   width="14"
                   height="14"
@@ -1232,10 +1241,27 @@ if (!chatId) {
               </div>
               {menuOpen && (
                 <div style={styles.dropdown}>
-                  <button onClick={handleLogout} style={styles.logoutBtn}>
-                    🚪 Logout
-                  </button>
-                </div>
+  <div style={styles.dropdown}>
+  <button
+    onClick={handleLogout}
+    style={styles.logoutBtn}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.background = "linear-gradient(135deg, rgba(200, 30, 30, 1) 0%, rgba(160, 20, 20, 1) 100%)"; // Fully opaque on hover
+      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.5)";
+      e.currentTarget.style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.5)";
+      e.currentTarget.style.transform = "translateY(-2px)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.background = "linear-gradient(135deg, rgba(220, 38, 38, 0.9) 0%, rgba(185, 28, 28, 0.9) 100%)"; // Back to near-opaque
+      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+      e.currentTarget.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.4)";
+      e.currentTarget.style.transform = "translateY(0)";
+    }}
+  >
+   Logout
+  </button>
+</div>
+</div>
               )}
             </div>
           ) : (
@@ -1265,10 +1291,13 @@ if (!chatId) {
                     borderBottom: "1px solid rgba(255,255,255,0.12)",
                   }}
                 >
-                  👤 {user.name}
+                  <img 
+  src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" 
+  style={{ width: '20px', height: '20px', marginRight: '5px' }} 
+/> {user.name}
                 </div>
                 <button onClick={handleLogout} style={styles.logoutBtn}>
-                  🚪 Logout
+                   Logout
                 </button>
               </>
             ) : (
