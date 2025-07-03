@@ -1224,7 +1224,7 @@ if (!chatId) {
               >
                  <img 
   src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" 
-  style={{ width: '20px', height: '20px', marginRight: '5px' }} 
+  style={{ width: '40px', height: '40px', marginRight: '5px' }} 
 /> {user.name}{user.name}
                 <svg
                   width="14"
@@ -1293,7 +1293,7 @@ if (!chatId) {
                 >
                   <img 
   src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" 
-  style={{ width: '20px', height: '20px', marginRight: '5px' }} 
+  style={{ width: '40px', height: '40px', marginRight: '5px' }} 
 /> {user.name}
                 </div>
                 <button onClick={handleLogout} style={styles.logoutBtn}>
