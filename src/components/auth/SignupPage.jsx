@@ -11,7 +11,7 @@ export default function SignupPage() {
   const BACKEND_URL =
     window.location.hostname === "localhost"
       ? "http://localhost:3000"
-      : "https://nyay-gpt.onrender.com"
+      : "https://legalaid-263l.onrender.com"
   const [form, setForm] = useState({ name: "", email: "", password: "" })
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState("")

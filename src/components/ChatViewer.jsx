@@ -6,7 +6,7 @@ import { ArrowLeft, Mic, MicOff, Volume2 } from "lucide-react"
 
 const backendBaseUrl = window.location.hostname === "localhost"
   ? "http://localhost:3000"
-  : "https://nyay-gpt.onrender.com"
+  : "https://legalaid-263l.onrender.com"
 
 // Same language configurations as MainLanding
 const languages = {

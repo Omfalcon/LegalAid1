@@ -8,10 +8,11 @@ import { useParams } from "react-router-dom";
 import ChatHistorySidebar from "../ChatHistorySidebar";
 import "../index.css"
 import { useNavigate } from "react-router-dom"; // add this
+import JediEasterEgg from "./JediEasterEgg";
 
 const backendBaseUrl = window.location.hostname === "localhost"
   ? "http://localhost:3000"
-  : "https://nyay-gpt.onrender.com";
+  : "https://legalaid-263l.onrender.com";
 
 // Supported Languages & Greetings
 const languages = {
@@ -269,6 +270,8 @@ const languageGreetings = {
   kokborok: "Kwlwrwi! Ang Seva, Sahayata AI borok a. Ang baijani nai: borok kobor dokai nai?"
 };
 
+
+
 console.log(languageGreetings);
 
 
@@ -281,9 +284,7 @@ export default function MainLanding() {
   const apiCallInProgressRef = useRef(false)
   const timerRef = useRef(null)
   const utteranceIdRef = useRef(0)
-  // const [chatId, setChatId] = useState(null);
   const [currentChatId, setCurrentChatId] = useState(chatId);
-
   // File upload states
   const [filePreview, setFilePreview] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -310,6 +311,8 @@ export default function MainLanding() {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [advocates, setAdvocates] = useState([]);
   const [showAdvocates, setShowAdvocates] = useState(false);
+  const [waitingForUserVoice, setWaitingForUserVoice] = useState(false);
+  const [easterEggTriggered, setEasterEggTriggered] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const MAPS_EMBED_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
@@ -395,12 +398,13 @@ if (!chatId) {
     let stoppedByApp = false
 
     recognition.onresult = async (event) => {
-      if (muted || speaking || apiCallInProgressRef.current) return;
+  if (muted || speaking || apiCallInProgressRef.current) return;
 
-      setUserSpeaking(true);
-      setReadyToSpeak(false);
-      setTimeout(() => setUserSpeaking(false), 1200);
-      recognition.stop();
+  setUserSpeaking(true);
+  setWaitingForUserVoice(false); // Cancel Easter egg
+  setReadyToSpeak(false);
+  setTimeout(() => setUserSpeaking(false), 1200);
+  recognition.stop();
 
       utteranceIdRef.current += 1;
       const thisUtterance = utteranceIdRef.current;
@@ -582,6 +586,25 @@ if (!chatId) {
     setAwaitingVoiceContext(true);
   };
 
+  const pauseListening = () => {
+  setListeningPaused(true);
+  setReadyToSpeak(false);
+  if (recognitionRef.current) {
+    recognitionRef.current.stop();
+  }
+};
+
+const resumeListening = () => {
+  setListeningPaused(false);
+  setReadyToSpeak(true);
+  if (recognitionRef.current && connected && !muted) {
+    try {
+      recognitionRef.current.start();
+    } catch (e) {
+      console.log("Recognition restart failed:", e);
+    }
+  }
+};
   const handleClearFile = () => {
     setUploadedFile(null);
     setFilePreview("");
@@ -710,60 +733,65 @@ if (!chatId) {
   }
 
   const speakText = async (text, langKey = currentLang || "hindi") => {
-    console.log("🎤 Starting speech:", text.substring(0, 50) + "...")
+  console.log("🎤 Starting speech:", text.substring(0, 50) + "...")
 
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop()
-      } catch (e) { }
-    }
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.src = ""
-    }
-
+  if (recognitionRef.current) {
     try {
-      const res = await fetch(`${backendBaseUrl}/speak`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, language: langKey }),
-      })
+      recognitionRef.current.stop()
+    } catch (e) { }
+  }
+  if (audioRef.current) {
+    audioRef.current.pause()
+    audioRef.current.src = ""
+  }
 
-      if (!res.ok) {
-        throw new Error(`TTS request failed: ${res.status}`)
-      }
+  try {
+    const res = await fetch(`${backendBaseUrl}/speak`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, language: langKey }),
+    })
 
-      const blob = await res.blob()
-      const audioUrl = URL.createObjectURL(blob)
-      const audio = new window.Audio(audioUrl)
-      audioRef.current = audio
+    if (!res.ok) {
+      throw new Error(`TTS request failed: ${res.status}`)
+    }
 
-      audio.onended = () => {
-        setSpeaking(false)
-        setReadyToSpeak(true)
-      }
-      audio.onerror = (e) => {
-        console.error("Audio playback error:", e)
-        setSpeaking(false)
-        setReadyToSpeak(true)
-      }
+    const blob = await res.blob()
+    const audioUrl = URL.createObjectURL(blob)
+    const audio = new window.Audio(audioUrl)
+    audioRef.current = audio
 
-      setSpeaking(true)
-      setReadyToSpeak(false)
-      try {
-        await audio.play()
-      } catch (err) {
-        console.error("Audio play failed:", err)
-        alert("Please tap anywhere on the screen to enable audio, then try again.")
-        setSpeaking(false)
-        setReadyToSpeak(false)
+    audio.onended = () => {
+      setSpeaking(false)
+      setReadyToSpeak(true)
+      // Trigger Easter egg after assistant finishes speaking
+      if (text.includes("Let me know if it’s urgent or if you need legal guidance") || 
+           text.includes("मुझे बताएं अगर यह जरूरी है या आपको कानूनी मार्गदर्शन चाहिए।")) {
+        setWaitingForUserVoice(true)
       }
-    } catch (error) {
-      console.error("TTS error:", error)
+    }
+    audio.onerror = (e) => {
+      console.error("Audio playback error:", e)
+      setSpeaking(false)
+      setReadyToSpeak(true)
+    }
+
+    setSpeaking(true)
+    setReadyToSpeak(false)
+    try {
+      await audio.play()
+    } catch (err) {
+      console.error("Audio play failed:", err)
+      alert("Please tap anywhere on the screen to enable audio, then try again.")
       setSpeaking(false)
       setReadyToSpeak(false)
     }
+  } catch (error) {
+    console.error("TTS error:", error)
+    setSpeaking(false)
+    setReadyToSpeak(false)
   }
+}
 
   const handleConnect = async () => {
     setConnected(true)
@@ -900,10 +928,6 @@ if (!chatId) {
   }
 
   const formatTime = (sec) => `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`
-
-
-
-
 
 
   // const [user, setUser] = useState(null);
@@ -1181,13 +1205,7 @@ if (!chatId) {
             ...styles.logoImg, // Keep all existing styles from styles.logoImg
             border: "2px solid #00D3C3", // Add a static teal border
             boxShadow: "0 0 10px rgba(1, 229, 206, 0.66)", // Add a static teal glow
-            // If styles.logoImg already has a background, this will sit on top.
-            // If you want the image to be "cut out" from the border,
-            // ensure styles.logoImg also has a background color that matches
-            // the nav's background or the element behind the logo.
-            // Example: background: "#121e32", if your nav background is #121e32
-            // You might need to adjust the padding property within styles.logoImg
-            // or here if the border makes the image too cramped.
+
           }}
         />
         <h1 style={styles.logoText}>Sahayata AI</h1>
@@ -1552,117 +1570,74 @@ if (!chatId) {
             {!connected ? (
               <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem" }}>
                 <button
-                  onClick={handleNearbyPolice}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.15)"
-                    e.target.style.transform = "translateY(-2px)"
-                    e.target.style.boxShadow = "0 12px 40px rgba(0, 0, 0, 0.3)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                    e.target.style.transform = "translateY(0)"
-                    e.target.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.2)"
-                  }}
-                >
-                  <FaMapMarkerAlt
+                    onClick={handleNearbyPolice}
+                    className="btn-3d"
                     style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#60a5fa",
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "1rem",
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(20px)",
+                      borderRadius: "1rem",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      cursor: "pointer",
+                      outline: "none",
+                      transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      transformStyle: "preserve-3d",
                     }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "rgba(255, 255, 255, 0.9)", fontWeight: "500" }}>
-                    Nearby Police
-                  </span>
+                  >
+                  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+                  <span style={{ color: "white" }}>Nearby Police</span>
                 </button>
 
                 <button
-                  onClick={handleRequestCall}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.15)"
-                    e.target.style.transform = "translateY(-2px)"
-                    e.target.style.boxShadow = "0 12px 40px rgba(0, 0, 0, 0.3)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                    e.target.style.transform = "translateY(0)"
-                    e.target.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.2)"
-                  }}
-                >
-                  <FaPhone
+                    onClick={handleRequestCall}
+                    className="btn-3d"
                     style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#10b981",
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "1rem",
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(20px)",
+                      borderRadius: "1rem",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      cursor: "pointer",
+                      outline: "none",
+                      transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      transformStyle: "preserve-3d",
                     }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "rgba(255, 255, 255, 0.9)", fontWeight: "500" }}>
-                    Request Call
-                  </span>
+                  >
+                  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+                  <span style={{ color: "white" }}>Request Call</span>
                 </button>
 
                 <button
-                  onClick={handleNearbyAdvocate}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                >
-                  <FaMapMarkerAlt
+                    onClick={handleNearbyAdvocate}
+                    className="btn-3d"
                     style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#fbbf24", // use a different color to distinguish
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "1rem",
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(20px)",
+                      borderRadius: "1rem",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      cursor: "pointer",
+                      outline: "none",
+                      transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      transformStyle: "preserve-3d",
                     }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "rgba(255, 255, 255, 0.9)", fontWeight: "500" }}>
-                    Nearby Advocate
-                  </span>
+                  >
+                  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+                  <span style={{ color: "white" }}>Nearby Advocate</span>
                 </button>
+
               </div>
             ) : (
               <div style={{ display: "flex", justifyContent: "center", gap: "2rem" }}>
@@ -1719,42 +1694,26 @@ if (!chatId) {
                 </button>
 
                 <button
-                  onClick={handleNearbyPolice}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.15)"
-                    e.target.style.transform = "translateY(-2px)"
-                    e.target.style.boxShadow = "0 12px 40px rgba(0, 0, 0, 0.3)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                    e.target.style.transform = "translateY(0)"
-                    e.target.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.2)"
-                  }}
-                >
-                  <FaMapMarkerAlt
-                    style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#60a5fa",
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
-                    }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "#ffffff", fontWeight: "500" }}>Police</span>
+  onClick={handleNearbyPolice}
+  className="btn-3d"
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "0.5rem",
+    padding: "1rem",
+    background: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "1rem",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    cursor: "pointer",
+    outline: "none",
+    transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+    transformStyle: "preserve-3d",
+  }}
+>
+  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+  <span style={{ color: "white" }}>Nearby Police</span>
                 </button>
 
                 <button
@@ -1840,28 +1799,20 @@ if (!chatId) {
               >
                 <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#ffffff", margin: 0 }}>Request Call</h3>
                 <button
-                  onClick={() => setShowPhoneModal(false)}
-                  style={{
-                    color: "rgba(255, 255, 255, 0.6)",
-                    backgroundColor: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    outline: "none",
-                    padding: "0.5rem",
-                    borderRadius: "0.5rem",
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.color = "#ffffff"
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.color = "rgba(255, 255, 255, 0.6)"
-                    e.target.style.background = "transparent"
-                  }}
-                >
-                  <FaTimes style={{ width: "1.25rem", height: "1.25rem" }} />
-                </button>
+  onClick={() => setShowPhoneModal(false)}
+  className="btn-3d"
+  style={{
+    color: "rgba(255, 255, 255, 0.6)",
+    background: "rgba(255, 255, 255, 0.1)",
+    border: "none",
+    padding: "0.5rem",
+    borderRadius: "0.5rem",
+    transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+    transformStyle: "preserve-3d",
+  }}
+>
+  <FaTimes />
+</button>
               </div>
 
               <div style={{ marginBottom: "1.5rem" }}>
@@ -2414,6 +2365,13 @@ if (!chatId) {
             }
           }
         `}</style>
+      <JediEasterEgg 
+  triggerActive={waitingForUserVoice && !easterEggTriggered}
+  onDismiss={() => {
+    setEasterEggTriggered(true);
+    setWaitingForUserVoice(false);
+  }}
+/>
       </div>
     </div>
   )
