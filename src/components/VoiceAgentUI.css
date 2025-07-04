@@ -1,5 +1,5 @@
 .ai-agent-ui-container {
-  background: linear-gradient(180deg, #181d2b 0%, #101522 100%);
+  background: linear-gradient(180deg, #0732a9 0%, #101522 100%);
   width: 350px;
   height: 700px;
   border-radius: 40px;
@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: flex-start;
   position: relative;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4); 
 }
 
 .status-bar-ui {

@@ -12,7 +12,7 @@ const JediEasterEgg = ({ triggerActive, onDismiss }) => {
     if (triggerActive) {
       timer = setTimeout(() => {
         setShowEgg(true);
-        const saber = new Audio('/sounds/lightsaber-on.mp3');
+        const saber = new Audio('../../public/sound/lightsaber-on.mp3');
         saber.play();
       }, 8000); // Trigger after 8s of silence
     }
