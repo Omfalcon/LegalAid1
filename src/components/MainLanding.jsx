@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import ChatHistorySidebar from "../ChatHistorySidebar";
 import "../index.css"
 import { useNavigate } from "react-router-dom"; // add this
+import JediEasterEgg from "./JediEasterEgg";
 
 const backendBaseUrl = window.location.hostname === "localhost"
   ? "http://localhost:3000"
@@ -269,6 +270,8 @@ const languageGreetings = {
   kokborok: "Kwlwrwi! Ang Seva, Sahayata AI borok a. Ang baijani nai: borok kobor dokai nai?"
 };
 
+
+
 console.log(languageGreetings);
 
 
@@ -310,6 +313,8 @@ export default function MainLanding() {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [advocates, setAdvocates] = useState([]);
   const [showAdvocates, setShowAdvocates] = useState(false);
+  const [waitingForUserVoice, setWaitingForUserVoice] = useState(false);
+  const [easterEggTriggered, setEasterEggTriggered] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const MAPS_EMBED_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
@@ -395,12 +400,13 @@ if (!chatId) {
     let stoppedByApp = false
 
     recognition.onresult = async (event) => {
-      if (muted || speaking || apiCallInProgressRef.current) return;
+  if (muted || speaking || apiCallInProgressRef.current) return;
 
-      setUserSpeaking(true);
-      setReadyToSpeak(false);
-      setTimeout(() => setUserSpeaking(false), 1200);
-      recognition.stop();
+  setUserSpeaking(true);
+  setWaitingForUserVoice(false); // Cancel Easter egg
+  setReadyToSpeak(false);
+  setTimeout(() => setUserSpeaking(false), 1200);
+  recognition.stop();
 
       utteranceIdRef.current += 1;
       const thisUtterance = utteranceIdRef.current;
@@ -582,6 +588,25 @@ if (!chatId) {
     setAwaitingVoiceContext(true);
   };
 
+  const pauseListening = () => {
+  setListeningPaused(true);
+  setReadyToSpeak(false);
+  if (recognitionRef.current) {
+    recognitionRef.current.stop();
+  }
+};
+
+const resumeListening = () => {
+  setListeningPaused(false);
+  setReadyToSpeak(true);
+  if (recognitionRef.current && connected && !muted) {
+    try {
+      recognitionRef.current.start();
+    } catch (e) {
+      console.log("Recognition restart failed:", e);
+    }
+  }
+};
   const handleClearFile = () => {
     setUploadedFile(null);
     setFilePreview("");
@@ -710,60 +735,65 @@ if (!chatId) {
   }
 
   const speakText = async (text, langKey = currentLang || "hindi") => {
-    console.log("🎤 Starting speech:", text.substring(0, 50) + "...")
+  console.log("🎤 Starting speech:", text.substring(0, 50) + "...")
 
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop()
-      } catch (e) { }
-    }
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.src = ""
-    }
-
+  if (recognitionRef.current) {
     try {
-      const res = await fetch(`${backendBaseUrl}/speak`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, language: langKey }),
-      })
+      recognitionRef.current.stop()
+    } catch (e) { }
+  }
+  if (audioRef.current) {
+    audioRef.current.pause()
+    audioRef.current.src = ""
+  }
 
-      if (!res.ok) {
-        throw new Error(`TTS request failed: ${res.status}`)
-      }
+  try {
+    const res = await fetch(`${backendBaseUrl}/speak`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, language: langKey }),
+    })
 
-      const blob = await res.blob()
-      const audioUrl = URL.createObjectURL(blob)
-      const audio = new window.Audio(audioUrl)
-      audioRef.current = audio
+    if (!res.ok) {
+      throw new Error(`TTS request failed: ${res.status}`)
+    }
 
-      audio.onended = () => {
-        setSpeaking(false)
-        setReadyToSpeak(true)
-      }
-      audio.onerror = (e) => {
-        console.error("Audio playback error:", e)
-        setSpeaking(false)
-        setReadyToSpeak(true)
-      }
+    const blob = await res.blob()
+    const audioUrl = URL.createObjectURL(blob)
+    const audio = new window.Audio(audioUrl)
+    audioRef.current = audio
 
-      setSpeaking(true)
-      setReadyToSpeak(false)
-      try {
-        await audio.play()
-      } catch (err) {
-        console.error("Audio play failed:", err)
-        alert("Please tap anywhere on the screen to enable audio, then try again.")
-        setSpeaking(false)
-        setReadyToSpeak(false)
+    audio.onended = () => {
+      setSpeaking(false)
+      setReadyToSpeak(true)
+      // Trigger Easter egg after assistant finishes speaking
+      if (text.includes("Let me know if it’s urgent or if you need legal guidance") || 
+           text.includes("मुझे बताएं अगर यह जरूरी है या आपको कानूनी मार्गदर्शन चाहिए।")) {
+        setWaitingForUserVoice(true)
       }
-    } catch (error) {
-      console.error("TTS error:", error)
+    }
+    audio.onerror = (e) => {
+      console.error("Audio playback error:", e)
+      setSpeaking(false)
+      setReadyToSpeak(true)
+    }
+
+    setSpeaking(true)
+    setReadyToSpeak(false)
+    try {
+      await audio.play()
+    } catch (err) {
+      console.error("Audio play failed:", err)
+      alert("Please tap anywhere on the screen to enable audio, then try again.")
       setSpeaking(false)
       setReadyToSpeak(false)
     }
+  } catch (error) {
+    console.error("TTS error:", error)
+    setSpeaking(false)
+    setReadyToSpeak(false)
   }
+}
 
   const handleConnect = async () => {
     setConnected(true)
@@ -900,10 +930,6 @@ if (!chatId) {
   }
 
   const formatTime = (sec) => `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`
-
-
-
-
 
 
   // const [user, setUser] = useState(null);
@@ -2414,6 +2440,13 @@ if (!chatId) {
             }
           }
         `}</style>
+      <JediEasterEgg 
+  triggerActive={waitingForUserVoice && !easterEggTriggered}
+  onDismiss={() => {
+    setEasterEggTriggered(true);
+    setWaitingForUserVoice(false);
+  }}
+/>
       </div>
     </div>
   )
