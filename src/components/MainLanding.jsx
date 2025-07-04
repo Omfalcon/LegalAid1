@@ -284,9 +284,7 @@ export default function MainLanding() {
   const apiCallInProgressRef = useRef(false)
   const timerRef = useRef(null)
   const utteranceIdRef = useRef(0)
-  // const [chatId, setChatId] = useState(null);
   const [currentChatId, setCurrentChatId] = useState(chatId);
-
   // File upload states
   const [filePreview, setFilePreview] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -1207,13 +1205,7 @@ const resumeListening = () => {
             ...styles.logoImg, // Keep all existing styles from styles.logoImg
             border: "2px solid #00D3C3", // Add a static teal border
             boxShadow: "0 0 10px rgba(1, 229, 206, 0.66)", // Add a static teal glow
-            // If styles.logoImg already has a background, this will sit on top.
-            // If you want the image to be "cut out" from the border,
-            // ensure styles.logoImg also has a background color that matches
-            // the nav's background or the element behind the logo.
-            // Example: background: "#121e32", if your nav background is #121e32
-            // You might need to adjust the padding property within styles.logoImg
-            // or here if the border makes the image too cramped.
+            
           }}
         />
         <h1 style={styles.logoText}>Sahayata AI</h1>
@@ -1578,117 +1570,74 @@ const resumeListening = () => {
             {!connected ? (
               <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem" }}>
                 <button
-                  onClick={handleNearbyPolice}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.15)"
-                    e.target.style.transform = "translateY(-2px)"
-                    e.target.style.boxShadow = "0 12px 40px rgba(0, 0, 0, 0.3)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                    e.target.style.transform = "translateY(0)"
-                    e.target.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.2)"
-                  }}
-                >
-                  <FaMapMarkerAlt
+                    onClick={handleNearbyPolice}
+                    className="btn-3d"
                     style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#60a5fa",
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "1rem",
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(20px)",
+                      borderRadius: "1rem",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      cursor: "pointer",
+                      outline: "none",
+                      transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      transformStyle: "preserve-3d",
                     }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "rgba(255, 255, 255, 0.9)", fontWeight: "500" }}>
-                    Nearby Police
-                  </span>
+                  >
+                  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+                  <span style={{ color: "white" }}>Nearby Police</span>
                 </button>
 
                 <button
-                  onClick={handleRequestCall}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.15)"
-                    e.target.style.transform = "translateY(-2px)"
-                    e.target.style.boxShadow = "0 12px 40px rgba(0, 0, 0, 0.3)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                    e.target.style.transform = "translateY(0)"
-                    e.target.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.2)"
-                  }}
-                >
-                  <FaPhone
+                    onClick={handleRequestCall}
+                    className="btn-3d"
                     style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#10b981",
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "1rem",
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(20px)",
+                      borderRadius: "1rem",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      cursor: "pointer",
+                      outline: "none",
+                      transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      transformStyle: "preserve-3d",
                     }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "rgba(255, 255, 255, 0.9)", fontWeight: "500" }}>
-                    Request Call
-                  </span>
+                  >
+                  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+                  <span style={{ color: "white" }}>Request Call</span>
                 </button>
 
                 <button
-                  onClick={handleNearbyAdvocate}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                >
-                  <FaMapMarkerAlt
+                    onClick={handleNearbyAdvocate}
+                    className="btn-3d"
                     style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#fbbf24", // use a different color to distinguish
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "1rem",
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(20px)",
+                      borderRadius: "1rem",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      cursor: "pointer",
+                      outline: "none",
+                      transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      transformStyle: "preserve-3d",
                     }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "rgba(255, 255, 255, 0.9)", fontWeight: "500" }}>
-                    Nearby Advocate
-                  </span>
+                  >
+                  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+                  <span style={{ color: "white" }}>Nearby Advocate</span>
                 </button>
+
               </div>
             ) : (
               <div style={{ display: "flex", justifyContent: "center", gap: "2rem" }}>
@@ -1745,42 +1694,26 @@ const resumeListening = () => {
                 </button>
 
                 <button
-                  onClick={handleNearbyPolice}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "1rem",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: "1rem",
-                    transition: "all 0.3s ease",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    cursor: "pointer",
-                    outline: "none",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.15)"
-                    e.target.style.transform = "translateY(-2px)"
-                    e.target.style.boxShadow = "0 12px 40px rgba(0, 0, 0, 0.3)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                    e.target.style.transform = "translateY(0)"
-                    e.target.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.2)"
-                  }}
-                >
-                  <FaMapMarkerAlt
-                    style={{
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      color: "#60a5fa",
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
-                    }}
-                  />
-                  <span style={{ fontSize: "0.875rem", color: "#ffffff", fontWeight: "500" }}>Police</span>
+  onClick={handleNearbyPolice}
+  className="btn-3d"
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "0.5rem",
+    padding: "1rem",
+    background: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "1rem",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    cursor: "pointer",
+    outline: "none",
+    transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+    transformStyle: "preserve-3d",
+  }}
+>
+  <FaMapMarkerAlt style={{ width: "1.5rem", height: "1.5rem", color: "#60a5fa" }} />
+  <span style={{ color: "white" }}>Nearby Police</span>
                 </button>
 
                 <button
@@ -1866,28 +1799,20 @@ const resumeListening = () => {
               >
                 <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#ffffff", margin: 0 }}>Request Call</h3>
                 <button
-                  onClick={() => setShowPhoneModal(false)}
-                  style={{
-                    color: "rgba(255, 255, 255, 0.6)",
-                    backgroundColor: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    outline: "none",
-                    padding: "0.5rem",
-                    borderRadius: "0.5rem",
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.color = "#ffffff"
-                    e.target.style.background = "rgba(255, 255, 255, 0.1)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.color = "rgba(255, 255, 255, 0.6)"
-                    e.target.style.background = "transparent"
-                  }}
-                >
-                  <FaTimes style={{ width: "1.25rem", height: "1.25rem" }} />
-                </button>
+  onClick={() => setShowPhoneModal(false)}
+  className="btn-3d"
+  style={{
+    color: "rgba(255, 255, 255, 0.6)",
+    background: "rgba(255, 255, 255, 0.1)",
+    border: "none",
+    padding: "0.5rem",
+    borderRadius: "0.5rem",
+    transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+    transformStyle: "preserve-3d",
+  }}
+>
+  <FaTimes />
+</button>
               </div>
 
               <div style={{ marginBottom: "1.5rem" }}>
