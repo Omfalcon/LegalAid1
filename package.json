@@ -24,6 +24,7 @@
     "react-router-dom": "^7.6.3",
     "react-spring": "^10.0.1",
     "three": "^0.177.0",
+    "vercel": "^44.2.11",
     "wouter": "^3.7.1"
   },
   "devDependencies": {

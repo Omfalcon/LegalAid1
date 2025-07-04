@@ -57,7 +57,8 @@ console.log("Node Process Info:", process.pid, process.platform, process.version
 
 const allowedOrigins = [
   "http://localhost:5173",         // Dev Frontend
-  "http://localhost:3000",         // Optional    // Your deployed frontend
+  "http://localhost:3000", 
+   "https://legal-aid-steel.vercel.app",        // Optional    // Your deployed frontend
 ];
 
 app.use(
