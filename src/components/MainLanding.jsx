@@ -12,7 +12,7 @@ import JediEasterEgg from "./JediEasterEgg";
 
 const backendBaseUrl = window.location.hostname === "localhost"
   ? "http://localhost:3000"
-  : "https://nyay-gpt.onrender.com";
+  : "https://legalaid-263l.onrender.com";
 
 // Supported Languages & Greetings
 const languages = {
@@ -1205,7 +1205,7 @@ const resumeListening = () => {
             ...styles.logoImg, // Keep all existing styles from styles.logoImg
             border: "2px solid #00D3C3", // Add a static teal border
             boxShadow: "0 0 10px rgba(1, 229, 206, 0.66)", // Add a static teal glow
-            
+
           }}
         />
         <h1 style={styles.logoText}>Sahayata AI</h1>

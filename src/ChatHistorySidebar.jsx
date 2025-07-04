@@ -21,7 +21,7 @@ export default function ChatHistorySidebar({ isOpen, setIsOpen }) {
         const user = JSON.parse(localStorage.getItem("user"))
         const token = user?.token
 
-        const res = await fetch("https://nyay-gpt.onrender.com/history", {
+        const res = await fetch("https://legalaid-263l.onrender.com/history", {
           headers: { Authorization: `Bearer ${token}` },
         })
 
