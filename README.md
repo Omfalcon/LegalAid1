@@ -53,6 +53,12 @@ Legal Awareness Programs: Paid collaborations with NGOs and institutions
 ✅ UI/UX for Accessibility: Designed for low-literacy and rural users
 ✅ Deployed Full Stack Web App
 
+Trivia for the Easter Egg:
+
+"Tick... tick... tick... silence may be golden, but hold it long enough, and you’ll trigger more than patience."
+An ancient order may arrive — one you never asked for.
+Hint: It's not Yoda, but they do love justice.
+
 🚀 Live Website
 
 Check it out here:
