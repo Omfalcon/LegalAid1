@@ -62,7 +62,7 @@ Hint: It's not Yoda, but they do love justice.
 🚀 Live Website
 
 Check it out here:
-https://legal-aid-steel.app/
+https://legal-aid-steel.vercel.app/
 
 🤝 Team Technologia
 
