@@ -1,6 +1,6 @@
 🛡 Sahayata – Your AI-Powered Legal Companion
 
-Live Site: https://legal-aid1.vercel.app/
+Live Site: https://legal-aid-steel.vercel.app/
 
 📌 Project Overview
 
@@ -62,7 +62,7 @@ Hint: It's not Yoda, but they do love justice.
 🚀 Live Website
 
 Check it out here:
-https://legal-aid-steel1.app/
+https://legal-aid-steel.app/
 
 🤝 Team Technologia
 
