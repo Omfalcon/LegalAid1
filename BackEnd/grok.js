@@ -13,7 +13,7 @@ export async function askGrok(systemPrompt, finalPrompt) {
     const response = await axios.post(
       GROQ_API_URL,
       {
-        model: "llama3-70b-8192",
+        model: "gemma2-9b-it",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: finalPrompt }
